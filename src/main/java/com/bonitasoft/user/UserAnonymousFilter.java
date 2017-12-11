@@ -24,6 +24,7 @@ import org.bonitasoft.console.common.server.utils.PermissionsBuilderAccessor;
 import org.bonitasoft.console.common.server.utils.SessionUtil;
 import org.bonitasoft.engine.api.ApiAccessType;
 import org.bonitasoft.engine.api.LoginAPI;
+import org.bonitasoft.engine.api.ProcessAPI;
 import org.bonitasoft.engine.api.TenantAPIAccessor;
 import org.bonitasoft.engine.exception.BonitaHomeNotSetException;
 import org.bonitasoft.engine.exception.ServerAPIException;
@@ -36,18 +37,23 @@ import org.bonitasoft.web.rest.model.user.User;
 public class UserAnonymousFilter implements Filter {
 
     private final String currentUserName = "walter.bates";
-    private final String bannerHeader = "--------------------- FiltreUserAnonymous V1.4: ";
+    private final String bannerHeader = "--------------------- FiltreUserAnonymous V1.5: ";
 
     public Logger logger = Logger.getLogger(UserAnonymousFilter.class.getName());
 
     FilterConfig filterConfig = null;
     String userName = null;
     String userPassword = null;
+    boolean automaticAssignTask=false;
+    
 
     public void init(final FilterConfig filterConfig) throws ServletException {
         userName = filterConfig.getInitParameter("username");
         userPassword = filterConfig.getInitParameter("userpassword");
-        logger.info("--------------------- filtre UserAnonymous userName[" + userName + "]");
+        String automaticAssignSt = filterConfig.getInitParameter("automaticAssignTask");
+        if (automaticAssignSt!=null && "TRUE".equalsIgnoreCase(automaticAssignSt))
+        	automaticAssignTask=true;
+        logger.info("--------------------- filtre UserAnonymous userName[" + userName + "] automaticAssignTask["+automaticAssignTask+"]");
         this.filterConfig = filterConfig;
     }
 
@@ -114,8 +120,6 @@ public class UserAnonymousFilter implements Filter {
                 final PermissionsBuilder permissionsBuilder = PermissionsBuilderAccessor.createPermissionBuilder(apiSession);
                 final Set<String> permissions = permissionsBuilder.getPermissions();
                 SessionUtil.sessionLogin(user, apiSession, permissions, httpSession);
-                chain.doFilter(httpRequest, servletResponse);
-                return;
 
             } catch (final BonitaHomeNotSetException e) {
                 logger.severe(bannerHeader + "NoBonitaHome setted");
@@ -129,6 +133,26 @@ public class UserAnonymousFilter implements Filter {
                 logger.severe(bannerHeader + "User[" + userName + "] not referenced in Bonita:" + e.toString());
             }
         }
+        
+        // it is a TaskAccess ? 
+        if (automaticAssignTask && url.indexOf("portal/resource/taskInstance")!=-1)
+        {
+        	// do an automatic assignement
+        	String taskId=null; 
+        	try
+        	{
+        	   taskId= request.getParameter("id");
+        	   final APISession apiSession = requestAccessor.getApiSession();
+        	   final ProcessAPI processAPI = TenantAPIAccessor.getProcessAPI(apiSession);
+        	   processAPI.assignUserTask(Long.valueOf( taskId ), apiSession.getUserId()); 
+        	   logger.info("Assignement of taskId["+taskId+"] done with success to userId[" +  apiSession.getUserId() + "]");
+
+        	}
+        	catch (final Exception e) {
+        		logger.severe(bannerHeader + "Can't realize the automatic assignement ["+taskId+"] "+e.toString());
+        	}
+        }
+        
         // else chain
         chain.doFilter(httpRequest, servletResponse);
         return;

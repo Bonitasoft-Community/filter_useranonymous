@@ -1,26 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.bonitasoft.user</groupId>
-  <artifactId>UserAnonymous</artifactId>
-  <version>1.0</version>
+  <artifactId>bonita-user-anonymous</artifactId>
+  <version>1.5</version>
   
   <dependencies>
 		<dependency>
 			<groupId>org.bonitasoft.engine</groupId>
 			<artifactId>bonita-client</artifactId>
-			<version>7.5.4</version>
+			<version>7.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bonitasoft.engine</groupId>
 			<artifactId>bonita-server</artifactId>
-			<version>7.5.4</version>
+			<version>7.6.0</version>
 		</dependency>
 		
-		<!-- mvn install:install-file -Dfile=console-common-7.5.4.jar -DgroupId=org.bonitasoft.console -DartifactId=console-common -Dversion=7.5.4 -Dpackaging=jar -->
+		<!-- mvn install:install-file -Dfile=console-common-7.6.0.jar -DgroupId=org.bonitasoft.console -DartifactId=console-common -Dversion=7.6.0 -Dpackaging=jar -->
 		<dependency>
 			<groupId>org.bonitasoft.console</groupId>
 			<artifactId>console-common</artifactId>
-			<version>7.5.4</version>
+			<version>7.6.0</version>
 		</dependency>
 
 		<dependency>
