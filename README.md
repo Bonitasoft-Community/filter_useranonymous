@@ -78,4 +78,7 @@ http://localhost:8080/bonita/portal/resource/taskInstance/mySimpleProcess/1.0/Si
 Attention: the task must be assigned first to the user. Use the automaticAssignTask policy. Else, he can access the form, but on submit, he's get an error
 
 
-	
+Nota
+You can display the log information by adding this properties in the logging.properties file
+
+com.bonitasoft.user.level=INFO
