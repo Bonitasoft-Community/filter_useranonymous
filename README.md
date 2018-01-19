@@ -55,11 +55,15 @@ username is the user used to connect the anonymous URL. if the person access aft
 userpassword is the password used
 automaticAssignTask is optionnel. When set to true, if a Task is accessed, then an automatic assignement is perform. if the assignement failed, the Bonita Default Policies is used : form is displayed but user will get an error (this is the behavior in 7.6, may be change in a next release)
 
-4. Deactivate the CSRF
-----------------------
-In 7.6, deactivate the CSRF via the procedure describe here
-
-https://documentation.bonitasoft.com/bonita/7.6/csrf-security
+4. Use the correct version
+--------------------------
+   less than 7.5 ? use the version 1.5
+   7.5 or more ? 
+		a/ Deactivate the CSRF
+			deactivate the CSRF via the procedure describe here
+			https://documentation.bonitasoft.com/bonita/7.6/csrf-security
+		b/ or use the 7.6 release
+			
 	
 	
 5. Use it 

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.bonitasoft.user</groupId>
   <artifactId>bonita-user-anonymous</artifactId>
-  <version>1.5</version>
+  <version>7.6</version>
   
   <dependencies>
 		<dependency>
@@ -22,7 +22,12 @@
 			<artifactId>console-common</artifactId>
 			<version>7.6.0</version>
 		</dependency>
-
+		<!-- mvn install:install-file -Dfile=console-server-7.6.0.jar -DgroupId=org.bonitasoft.console -DartifactId=console-server -Dversion=7.6.0 -Dpackaging=jar -->
+	<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-server</artifactId>
+			<version>7.6.0</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>

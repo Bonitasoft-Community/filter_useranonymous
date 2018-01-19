@@ -17,11 +17,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.bonitasoft.console.common.server.auth.AuthenticationFailedException;
 import org.bonitasoft.console.common.server.login.HttpServletRequestAccessor;
 import org.bonitasoft.console.common.server.login.LoginFailedException;
+import org.bonitasoft.console.common.server.login.LoginManager;
+import org.bonitasoft.console.common.server.login.credentials.Credentials;
+import org.bonitasoft.console.common.server.login.credentials.StandardCredentials;
+import org.bonitasoft.console.common.server.login.credentials.UserLogger;
 import org.bonitasoft.console.common.server.utils.PermissionsBuilder;
 import org.bonitasoft.console.common.server.utils.PermissionsBuilderAccessor;
 import org.bonitasoft.console.common.server.utils.SessionUtil;
+import org.bonitasoft.engine.LocalLoginMechanism;
 import org.bonitasoft.engine.api.ApiAccessType;
 import org.bonitasoft.engine.api.LoginAPI;
 import org.bonitasoft.engine.api.ProcessAPI;
@@ -33,6 +39,7 @@ import org.bonitasoft.engine.platform.LoginException;
 import org.bonitasoft.engine.session.APISession;
 import org.bonitasoft.engine.util.APITypeManager;
 import org.bonitasoft.web.rest.model.user.User;
+import org.bonitasoft.console.common.server.login.filter.TokenGenerator;
 
 public class UserAnonymousFilter implements Filter {
 
@@ -108,6 +115,21 @@ public class UserAnonymousFilter implements Filter {
             APITypeManager.setAPITypeAndParams(ApiAccessType.LOCAL, map);
 
             try {
+            	
+            	  // -- 7.4 and upper : create the cookie
+                UserLogger userLogger = new UserLogger();
+                LoginManager loginManager = new LoginManager();                
+                final StandardCredentials userCredentials = createUserCredentials(1L, requestAccessor);
+                userCredentials.setName(userName);
+                userCredentials.setPassword(userPassword);
+                
+                
+                loginManager.login(requestAccessor, httpResponse, userLogger, userCredentials);
+
+                TokenGenerator tokenGenerator = new TokenGenerator();
+                tokenGenerator.setTokenToResponseCookie(httpRequest, httpResponse, tokenGenerator.createOrLoadToken(httpRequest.getSession()));
+                
+            	/*
                 final LoginAPI loginAPI = TenantAPIAccessor.getLoginAPI();
 
                 // log in to the tenant to create a session
@@ -120,7 +142,9 @@ public class UserAnonymousFilter implements Filter {
                 final PermissionsBuilder permissionsBuilder = PermissionsBuilderAccessor.createPermissionBuilder(apiSession);
                 final Set<String> permissions = permissionsBuilder.getPermissions();
                 SessionUtil.sessionLogin(user, apiSession, permissions, httpSession);
-
+                */
+              
+                /*
             } catch (final BonitaHomeNotSetException e) {
                 logger.severe(bannerHeader + "NoBonitaHome setted");
             } catch (final ServerAPIException e) {
@@ -129,9 +153,12 @@ public class UserAnonymousFilter implements Filter {
                 logger.severe(bannerHeader + "UnknownAPITypeException [" + e + "]");
             } catch (final LoginException e) {
                 logger.severe(bannerHeader + "User[" + userName + "] not referenced in Bonita :" + e.toString());
+                */
             } catch (final LoginFailedException e) {
                 logger.severe(bannerHeader + "User[" + userName + "] not referenced in Bonita:" + e.toString());
-            }
+            } catch (AuthenticationFailedException e) {
+                logger.severe(bannerHeader + "User[" + userName + "] not referenced in Bonita:" + e.toString());
+			}
         }
         
         // it is a TaskAccess ? 
@@ -162,5 +189,7 @@ public class UserAnonymousFilter implements Filter {
     public void destroy() {
 
     }
-
+    protected StandardCredentials createUserCredentials(final long tenantId, final HttpServletRequestAccessor requestAccessor) {
+        return new StandardCredentials(requestAccessor.getUsername(), requestAccessor.getPassword(), tenantId);
+    }
 }
